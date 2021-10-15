@@ -1,8 +1,23 @@
 # Load lib/mod/data ----
 library(shiny)
+library(bslib)
+library(showtext)
+library(thematic)
 library(tidyverse)
+
 source(here::here("2021", "week42", "mod-plot.R"))
+source(here::here("2021", "week42", "helper-functions.R"))
+
 raw_df <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-10-12/seafood-and-fish-production-thousand-tonnes.csv')
+
+# Custom themes ----
+my_theme <- bs_theme(
+  bootswatch = "materia",
+  base_font = font_google("Secular One")
+) %>% 
+  bs_add_rules(sass::sass_file(here::here("2021", "week42", "style.scss")))
+
+thematic_shiny(font = "auto")
 
 # Data prep ----
 df <- raw_df %>% 
@@ -20,19 +35,35 @@ df <- raw_df %>%
 
 # App UI ----
 ui <- fluidPage(
-  fluidRow(
-    column(3, 
-           selectInput("country", "Select Country", choices = unique(df$country), selected = "Canada"),
-           sliderInput("year", "Year", min = 1960, max = 2013, value = c(1961, 2013), sep = ""),
-           radioButtons("plot_all_fish", "Show all types in 1 plot", choices = c("On", "Off"), selected = "Off"),
-           radioButtons("plot_world", "Compare against world", choices = c("On", "Off"), selected = "Off")),
-    column(9, 
-           textOutput("page_title"),  
-           plot_ui("plot"))
+  theme = my_theme,
+  div(
+    id = "app-title",
+    titlePanel("Seafood Production Explorer")
   ),
-  fluidRow(
-    tableOutput("table")
-  )
+  div(
+    id = "input1",
+    labeled_input(id = "select-country", 
+                  label = "Select Country",
+                  selectInput("country", NULL, choices = unique(df$country), selected = "Canada")),
+    labeled_input(id = "select-year",
+                  label = "Select Year",
+                  sliderInput("year", NULL, min = 1961, max = 2013, value = c(1961, 2013), sep = ""))
+  ),
+  div(
+    id = "input2",
+    labeled_input(id = "plot_world_radio_btn",
+                  label = "Show all types in 1 plot",
+                  radioButtons("plot_all_fish", NULL, choices = c("On", "Off"), selected = "Off")),
+    labeled_input(id = "plot_world_radio_btn",
+                  label = "Compare against world",
+                  radioButtons("plot_world", NULL, choices = c("On", "Off"), selected = "Off"))
+  ),
+  div(
+    id = "page-title",
+    textOutput("page_title")
+  ),
+  plot_ui("plot"),
+  tableOutput("table")
 )
 
 # App server ----
