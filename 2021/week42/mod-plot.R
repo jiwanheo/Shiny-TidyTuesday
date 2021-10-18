@@ -1,5 +1,7 @@
 plot_ui <- function(id) {
-  plotOutput(NS(id, "plot"))
+  plotly::plotlyOutput(NS(id, "plot"),
+                       height = 500,
+                       width = "auto")
 }
 
 plot_server <- function(id, selected, not_selected, plot_all_fish, plot_world) {
@@ -25,16 +27,23 @@ plot_server <- function(id, selected, not_selected, plot_all_fish, plot_world) {
     fish_facet <- reactive({ # If Off, group by country and facet, if so, group by fish_type
       if(plot_all_fish() == "Off") {
         base_plot() +
-          geom_line(data = selected(), aes(x = year, y = tonnes, group = country), color = "red") +
+          geom_line(data = selected(), aes(x = year, y = tonnes, group = country), color = "red", size = 1.2) +
           facet_wrap(~fish_type, scales = "free_y", nrow = 3)
       }
       else{
         base_plot() +
-          geom_line(data = selected(), aes(x = year, y = tonnes, color = fish_type)) +
+          geom_line(data = selected(), aes(x = year, y = tonnes, color = fish_type), size = 1.2) +
           labs(color = "Fish Type")
       }
     })
     
-    output$plot <- renderPlot(fish_facet())
+    output$plot <- plotly::renderPlotly(plotly::ggplotly(
+      fish_facet() + 
+        theme(
+          strip.text = element_text(size = 12,
+                                    color = thematic_get_mixture(1)),
+          strip.background = element_rect(fill = thematic_get_mixture(0.2))
+        )
+    ))
   })
 }
