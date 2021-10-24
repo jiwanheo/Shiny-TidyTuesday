@@ -1,0 +1,52 @@
+@import url('https://fonts.googleapis.com/css?family=Fontdiner+Swanky');
+
+body {
+  background-color: #e15f26;
+}
+
+body > div {
+  max-width: 1000px;
+}
+
+#body {
+  background-color: #ffffff;
+  padding: 1rem;
+}
+
+#app-title {
+  margin-bottom: 1rem;
+}
+
+h2 {
+  font-family: 'Fontdiner Swanky';
+  font-size: 4rem;
+  text-align: center;
+}
+
+h1, h2, h3 {
+  margin-top: 1rem;
+}
+
+#inputs {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+}
+
+.shiny-input-container:not(.shiny-input-container-inline) {
+  width: 200px;
+  max-width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+.shiny-input-container:not(.shiny-input-container-inline) .selectize-control {
+  margin-bottom: 0;
+}
+
+#summary_stats-weights_summary {
+  margin-bottom: 1rem;
+}
+
+#weight-summary {
+  margin-top: 1.5rem;
+}

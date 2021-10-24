@@ -1,0 +1,60 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+pumpkins <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-10-19/pumpkins.csv') %>% 
+  filter(country == "United States") %>% 
+  filter(!str_detect(weight_lbs, "Entries")) %>%
+  separate(id, into = c("year", "type"), sep = "\\-") %>% 
+  select(year, type, weight = weight_lbs, state = state_prov) %>%
+  mutate(
+    type = case_when(
+      type == "F" ~ "Field Pumpkin",
+      type == "P" ~ "Giant Pumpkin",
+      type == "S" ~ "Giant Squash",
+      type == "W" ~ "Giant Watermelon",
+      type == "L" ~ "Long Gourd"
+    )
+  ) %>% 
+  mutate(weight = str_remove_all(weight, "\\,")) %>% 
+  mutate(weight = as.numeric(weight))
+```
+
+Maybe like a statistical summary app?
+
+- Pick some variables (country == "United States", year == 2013) and compare against (country != "United States", year == 2013), do some t-tests and shit? it'd be a fun practice to do "oh this state's pumpkins are significantly different than others")
+
+yup, let's use a non-parametric method, since weight is not normally distributed
+- welch's t-test 
+- mann-whitney test if not.
+
+```{r}
+ohio <- pumpkins %>% 
+  filter(state == "Nevada") %>% 
+  filter(type == "Giant Pumpkin")
+
+not_ohio <- pumpkins %>% 
+  filter(state != "Nevada") %>% 
+  filter(type == "Giant Pumpkin")
+
+ggplot() +
+  geom_histogram(data = not_ohio, aes(weight), bins = 50)
+
+ggplot() +
+  geom_histogram(data = ohio, aes(weight), bins = 50)
+
+wilcox.test(x = ohio$weight, y = not_ohio$weight, alternative = "greater") -> a
+a
+
+var(ohio$weight)
+
+var(not_ohio$weight)
+```
+
